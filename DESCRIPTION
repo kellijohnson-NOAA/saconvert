@@ -1,0 +1,24 @@
+Package: saconvert
+Title: Convert Stock Assessment Files
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = c("Kelli", "F."), "Johnson",
+           role = c("aut", "cre"),
+           email = "kelli.johnson@noaa.gov",
+           comment = c(ORCID = "0000-0002-5149-451X"))
+Description: Converts input files from one stock assessment (SA) framework
+    to another framework allowing for comparisons and model averaging.
+License: What license it uses
+Encoding: UTF-8
+LazyData: true
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+Depends: R (>= 3.6)
+Imports:
+    r4ss (>= 1.36.1),
+    utils
+Remotes: github::r4ss/r4ss@development
+RoxygenNote: 7.0.1
