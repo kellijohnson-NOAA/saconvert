@@ -116,6 +116,7 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   Neff.catch <- rep(100, catch.nyrs)
   Neff.disc <- rep(0, catch.nyrs)
   Fmult.y1 <- 0.1
+  #Get equilibrium numbers at age under F
   naa.y1 <- (nm[1,1]/(nm[1,1]+Fmult.y1))*cn[1,]/(1-exp(-nm[1,1]-Fmult.y1))
   if(naa.y1[1]==min(naa.y1) ) naa.y1[1] <-  10*mean(naa.y1)
   naa.y1[which(naa.y1==0)] <- mean(naa.y1)
@@ -280,6 +281,7 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   # data$max_combined_lbin
   # data$N_lbinspop
   # data$lbin_vector_pop
+  browser()
   r4ss::SS_writedat(data, verbose = FALSE, outfile = paste0(user.od, "data.ss"),
     overwrite = TRUE)
 
