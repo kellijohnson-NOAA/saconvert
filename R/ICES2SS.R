@@ -281,7 +281,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   # data$max_combined_lbin
   # data$N_lbinspop
   # data$lbin_vector_pop
-  browser()
   r4ss::SS_writedat(data, verbose = FALSE, outfile = paste0(user.od, "data.ss"),
     overwrite = TRUE)
 
