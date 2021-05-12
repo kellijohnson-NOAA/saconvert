@@ -44,7 +44,18 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
     user.od <- file.path(user.od, .Platform$file.sep)
   }
   dir.create(user.od, showWarnings = FALSE, recursive = TRUE)
-
+  
+  #Get all the .dat files in the user.wd
+  regdat <- grep(".dat",list.files(user.wd))
+  filenames_ICES <- list.files(user.wd)[regdat]
+  
+  #All objects are now on input_file_list
+  input_file_list <- lapply(file.path(user.wd,filenames_ICES), read.ices)
+  names(input_file_list) <- gsub(".dat","",filenames_ICES)
+  
+  #Load into function environment as objects
+  list2env(input_file_list,environment())
+  
   cn <- read.ices(paste(user.wd,ices.id,"cn.dat",sep=""))
   attr(cn, "time") <- 0.5
   cw <- read.ices(paste(user.wd,ices.id,"cw.dat",sep=""))
@@ -281,7 +292,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   # data$max_combined_lbin
   # data$N_lbinspop
   # data$lbin_vector_pop
-  browser()
   r4ss::SS_writedat(data, verbose = FALSE, outfile = paste0(user.od, "data.ss"),
     overwrite = TRUE)
 
