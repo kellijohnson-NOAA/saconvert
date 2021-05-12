@@ -56,18 +56,7 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   #Load into function environment as objects
   list2env(input_file_list,environment())
   
-  cn <- read.ices(paste(user.wd,ices.id,"cn.dat",sep=""))
   attr(cn, "time") <- 0.5
-  cw <- read.ices(paste(user.wd,ices.id,"cw.dat",sep=""))
-  dw <- read.ices(paste(user.wd,ices.id,"dw.dat",sep=""))
-  #lf <- read.ices(paste(user.wd,ices.id,"lf.dat",sep=""))
-  #lw <- read.ices(paste(user.wd,ices.id,"lw.dat",sep=""))
-  mo <- read.ices(paste(user.wd,ices.id,"mo.dat",sep=""))
-  nm <- read.ices(paste(user.wd,ices.id,"nm.dat",sep=""))
-  #propf <- read.ices(paste(user.wd,ices.id,"pf.dat",sep=""))
-  pm <- read.ices(paste(user.wd,ices.id,"pm.dat",sep=""))
-  sw <- read.ices(paste(user.wd,ices.id,"sw.dat",sep=""))
-  surveys <- read.ices(paste(user.wd,ices.id,"survey.dat",sep=""))
   t.spawn <- pm[1,1] #assuming time/age invariant spawning time
   
   catch.yy <- as.numeric(c(min(rownames(cn)), max(rownames(cn))))  # assuming there is only one CAA matrix
@@ -103,23 +92,23 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   tot.catch <- apply(cn*cw,1,sum)
   
   
-  n.surveys <- length(surveys)
+  n.surveys <- length(survey)
   units.ind <- rep(2, n.surveys) # assuming unites=number (1=biomass; 2=number)
-  time.ind <- get.survey.time(surveys)
+  time.ind <- get.survey.time(survey)
   fish.ind <- rep(-1, n.surveys) #assuming none of the indices link to a fleet (i.e. all fishery-independent indices)
   index.sel.type <-  rep(2, n.surveys) #assuming logistic for simple setup
-  ind.ages <- get.survey.ages(surveys)
+  ind.ages <- get.survey.ages(survey)
   #ind.age1 <- sapply(ind.ages, min)
   ind.age1 <- rep(1, length(ind.ages))
   #ind.age2 <-  sapply(ind.ages, max)
   ind.age2 <- rep(length(catch.ages), length(ind.ages))
   ind.use <-  rep(1, n.surveys)
-  i.peak <- get.peak.age(surveys)
-  ind.sel.mats <- setup.surv.sel(surveys, i.peak, catch.ages, ind.ages)
+  i.peak <- get.peak.age(survey)
+  ind.sel.mats <- setup.surv.sel(survey, i.peak, catch.ages, ind.ages)
   ind.cv = 0.2    # assume same CV for all years, all indices to setup ASAP indices matrix
   ind.neff = 50   # assume same Effective sample size for all years, all indices to setup ASAP indices matrix
-  #ind.mat <- get.index.mat(x=surveys, a=ind.ages,  cv=0.2, neff=50)  #calculate total index and append CV and Neff columns
-  #ind.mat = get.index.mat(x=surveys, cv = 0.2, neff = 50, first.year = catch.yy[1], nyears = catch.nyrs, catch.ages, survey.ages)  {
+  #ind.mat <- get.index.mat(x=survey, a=ind.ages,  cv=0.2, neff=50)  #calculate total index and append CV and Neff columns
+  #ind.mat = get.index.mat(x=survey, cv = 0.2, neff = 50, first.year = catch.yy[1], nyears = catch.nyrs, catch.ages, survey.ages)  {
  
   recr.CV <- rep(0.5, catch.nyrs)
   catch.CV <- rep(0.1, catch.nyrs)
@@ -142,7 +131,7 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   proj.specs[,5] <-  rep(0,2)
   
   fleet.names <- "fleet1"
-  survey.names <- gsub("\\s", "", names(surveys))
+  survey.names <- gsub("\\s", "", names(survey))
   fleet.dir <-  rep(1,nfleets)
   disc.flag =  F
   
@@ -239,8 +228,8 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
     return(result)
   }
   # todo: determine SE of CPUE data
-  data$CPUE <- do.call("rbind", lapply(seq_along(surveys), 
-    function(xx) get_survey(surveys[[xx]], xx + 1)))
+  data$CPUE <- do.call("rbind", lapply(seq_along(survey), 
+    function(xx) get_survey(survey[[xx]], xx + 1)))
   # todo: get discard data
   # todo: get mean-body-weight data
   # todo: deal with size data
@@ -267,8 +256,8 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   data$Lbin_method <- 3
   # todo: deal with surveys that don't sample age 0
   data$agecomp <- rbind(
-    do.call("rbind", lapply(seq_along(surveys), 
-    function(xx) get_age(surveys[[xx]], xx + 1, maxage = max(catch.ages)))),
+    do.call("rbind", lapply(seq_along(survey), 
+    function(xx) get_age(survey[[xx]], xx + 1, maxage = max(catch.ages)))),
     get_age(cn, fleet = 1, maxage = max(catch.ages)))
   data$use_MeanSize_at_Age_obs <- 0
   data$MeanSize_at_Age_obs <- NULL
