@@ -496,7 +496,22 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
     colnames(ctl$age_selex_parms) <- colnames(simple_ctl$age_selex_parms)
   }
   
-  
+
+  if(slx == 20){ # double normal
+    ctl$age_selex_types <- do.call("rbind", replicate(n=data$Nfleets, expr=c(20, 0, 0, 0), simplify=FALSE))
+    ctl$age_selex_types <- as.data.frame(ctl$age_selex_types)
+    
+    ctl$age_selex_parms <- data.frame(
+      "LO" = rep(c(0, rep(-15,data$Nfleets-1)),data$Nfleets),
+      "HI" = rep(c(max(asap.ages),rep(15,data$Nfleets-1)), data$Nfleets*6),
+      "INIT" = rep(c(max(asap.ages)/2, 3,5,5,rep(-999,2)),data$Nfleets), #use -999 to decay young and old fish selectivity according to p3 and p4
+      "PRIOR" = 0, "SD" = 0, "PR_TYPE" = 0,
+      "PHASE" = rep(c(2, -1,2,rep(-1,3)),data$Nfleets), #Fix -999 options and parameters 2 and 4
+      matrix(0, ncol = 7, nrow = data$Nfleets*6)
+    )
+    colnames(ctl$age_selex_parms) <- colnames(simple_ctl$age_selex_parms)
+    
+  }
   ctl$size_selex_parms <- NULL
   if (tvslx) {
     ctl$Use_2D_AR1_selectivity <- 1
