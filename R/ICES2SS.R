@@ -263,6 +263,7 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   data$CPUEinfo[2:data$Nfleets, ] <- data$CPUEinfo[2, ]
   row.names(data$CPUEinfo) <- data$fleetnames
   data$CPUEinfo[, "Fleet"] <- 1:data$Nfleets
+  data$CPUEinfo[, "Units"] <- rep(0, data$Nfleets)
   data$CPUE <- data.frame(
     "year" = as.numeric()
   )
