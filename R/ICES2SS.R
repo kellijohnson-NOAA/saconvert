@@ -420,11 +420,10 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   ctl$recdev_early_phase <- 3
   ctl$Fcast_recr_phase <- 6
   
-  ctl$last_early_yr_nobias_adj <- -999
-  ctl$first_yr_fullbias_adj <- catch.yrs[1] - catch.nages 
+  ctl$last_early_yr_nobias_adj <- catch.yrs[1] - 1
+  ctl$first_yr_fullbias_adj <- catch.yrs[1]
   ctl$last_yr_fullbias_adj <- utils::tail(catch.yrs, 1)
   ctl$first_recent_yr_nobias_adj <- utils::tail(catch.yrs, 1) + 1
-  ctl$max_bias_adj <- 0
   
   ctl$F_ballpark_year <- catch.yrs[1]
   
