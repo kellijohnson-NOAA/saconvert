@@ -19,6 +19,12 @@
 #' Stock Synthesis starter file for F std report ages.
 #' @param forN An integer value specifying the number of forecast years for
 #' the projections.
+#' @param q.extra.se A logical value specifying whether or not to do extra standard error in catchability setup.
+#' @param q.float A logical value specifying whether or not to do Q float in catchability setup.
+#' @param f.method A numerical value specifying the F methods type that
+#' will be used in Stock Synthesis.
+#' 
+#' 
 #'
 #' @examples
 #' ICES2SS(
@@ -32,14 +38,11 @@
 #' @author Kelli Faye Johnson
 #'
 ICES2SS <- function(user.wd, user.od, ices.id = "",
-                    slx = 26, tvslx = TRUE, ages = c(1, 2), nsexes = 1,
+                    slx = 17, tvslx = TRUE, ages = c(1, 2), nsexes = 1,
                     forN = 2,
                     q.extra.se = FALSE,
                     q.float = FALSE, 
-                    sigma.init = 0.5, 
-                    steep.init = 1, 
-                    start.age = 0,
-                    bias.adj = TRUE) {
+                    f.method = 3) {
 
   #### todo items
   # todo: options for how to implement selectivity in the forecasts
@@ -233,9 +236,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   # data$months_per_seas
   # data$Nsubseasons
   # data$spawn_month
-  if (start.age == 1) {
-    data$spawn_month <- t.spawn * 12 + 1 + 0.00001 #Adjusted value in SS if starting age is 1; What does 0 mean in SAM?
-  }
   
   data$Nsexes <- nsexes # =1 or =-1?
   data$Nages <- catch.nages
@@ -253,6 +253,12 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
     "catch" = apply(cn, 1, sum),
     "catch_se" = 0.01
   )
+  if (f.method == 2) {
+    temp <- data$catch[1, ]
+    temp$year <- -999
+    rownames(temp) <- "-999"
+    data$catch <- rbind(temp, data$catch)
+  }
   
   data$CPUEinfo[2:data$Nfleets, ] <- data$CPUEinfo[2, ]
   row.names(data$CPUEinfo) <- data$fleetnames
@@ -394,9 +400,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   
   ctl$EmpiricalWAA <- 1
   ctl$Growth_Age_for_L1 <- 1 
-  if(start.age == 1) {
-    ctl$Growth_Age_for_L1 <- 0 # Age(post-settlement)_for_L1;linear growth below this; use 0 if the other SA model starts with age 1 (Based on model comparison project findings)?
-  }
   ctl$Growth_Age_for_L2 <- catch.nages
   ctl$MG_parms$PHASE[ctl$MG_parms$PHASE>0] <- ctl$MG_parms$PHASE[ctl$MG_parms$PHASE>0] * (-1)
   
@@ -405,7 +408,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   ctl$MainRdevYrLast <- utils::tail(catch.yrs, 1)
   ctl$recdev_phase <- 1
   ctl$recr_dist_method <- 4
-  if (start.age == 1) ctl$recr_dist_pattern$age <- 1
   
   ctl$N_Block_Designs <- 0
   ctl$blocks_per_pattern <- NULL
@@ -418,18 +420,11 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   ctl$recdev_early_phase <- 3
   ctl$Fcast_recr_phase <- 6
   
-  if (bias.adj) {
-    ctl$last_early_yr_nobias_adj <- catch.yrs[1] - 1
-    ctl$first_yr_fullbias_adj <- catch.yrs[1]
-    ctl$last_yr_fullbias_adj <- utils::tail(catch.yrs, 1)
-    ctl$first_recent_yr_nobias_adj <- utils::tail(catch.yrs, 1) + 1
-  } else {
-    ctl$last_early_yr_nobias_adj <- -999
-    ctl$first_yr_fullbias_adj <- catch.yrs[1] - catch.nages 
-    ctl$last_yr_fullbias_adj <- utils::tail(catch.yrs, 1)
-    ctl$first_recent_yr_nobias_adj <- utils::tail(catch.yrs, 1) + 1
-    ctl$max_bias_adj <- 0
-  }
+  ctl$last_early_yr_nobias_adj <- -999
+  ctl$first_yr_fullbias_adj <- catch.yrs[1] - catch.nages 
+  ctl$last_yr_fullbias_adj <- utils::tail(catch.yrs, 1)
+  ctl$first_recent_yr_nobias_adj <- utils::tail(catch.yrs, 1) + 1
+  ctl$max_bias_adj <- 0
   
   ctl$F_ballpark_year <- catch.yrs[1]
   
@@ -496,7 +491,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
     colnames(ctl$age_selex_parms) <- colnames(simple_ctl$age_selex_parms)
   }
   
-
   if(slx == 20){ # double normal
     ctl$age_selex_types <- do.call("rbind", replicate(n=data$Nfleets, expr=c(20, 0, 0, 0), simplify=FALSE))
     ctl$age_selex_types <- as.data.frame(ctl$age_selex_types)
@@ -583,11 +577,11 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
     ctl$MG_parms <- ctl$MG_parms[-grep("Mal", rownames(ctl$MG_parms)), ]
   }
 
-  # Fix steepness at 1 and sigma_R at 0.5?
+  # Fix steepness at 1 and sigma_R at 0.5
   ctl$Use_steep_init_equi <- 1
   
-  ctl$SR_parms[grep("sigma", rownames(ctl$SR_parms)), "INIT"] <- sigma.init
-  ctl$SR_parms[grep("steep", rownames(ctl$SR_parms)), "INIT"] <- steep.init
+  ctl$SR_parms[grep("sigma", rownames(ctl$SR_parms)), "INIT"] <- 0.5
+  ctl$SR_parms[grep("steep", rownames(ctl$SR_parms)), "INIT"] <- 1
   ctl$SR_parms[grep("steep", rownames(ctl$SR_parms)), "PHASE"] <- -1
   ctl$SR_parms[grep("steep", rownames(ctl$SR_parms)), "PR_type"] <- 0
   ctl$SR_parms[grep("LN(R0)", rownames(ctl$SR_parms)), "INIT"] <- log(naa.y1[1])
@@ -601,6 +595,23 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   ctl$stddev_reporting_selex[1] <- -1
   ctl$stddev_reporting_growth[1] <- -1
   ctl$stddev_reporting_N_at_A[1] <- -1
+  
+  if (f.method==2) {
+    ctl$F_Method  <- 2
+    ctl$F_setup <- c(0.01, 2, 0.00)
+    names(ctl$F_setup) <- c("F_setup_1", "F_setup_2", "F_setup_3")
+    ctl$init_F <- data.frame(
+      "LO" = 0,
+      "HI" = 1, 
+      "INIT" = 0.01, 
+      "PRIOR" = 0.01,
+      "PR_SD" = 0.2, 
+      "PR_type" = 0,
+      "PHASE" = 1,
+      "PType" = 18
+    )
+  }
+  
 
   r4ss::SS_writectl(ctl,
     outfile = paste0(user.od, "control.ss"),
