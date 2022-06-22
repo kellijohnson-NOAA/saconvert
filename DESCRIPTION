@@ -30,6 +30,5 @@ Suggests:
 VignetteBuilder: knitr
 Depends: R (>= 3.6)
 Imports:
-    r4ss (>= 1.36.1),
-    github::r4ss/r4ss
+    r4ss (>= 1.36.1)
 RoxygenNote: 7.0.1
