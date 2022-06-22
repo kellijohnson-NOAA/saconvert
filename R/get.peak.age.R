@@ -1,6 +1,6 @@
 get.peak.age=function (x)    #grab peak age from first couple of rows
 {
-if (class(x)== "matrix") {
+if (is.matrix(x)) {
    t.age <- rep(NA, 5)
    for (i in 1:5) {
      if(all(is.na(x[i,]))) t.age[i] = NA
@@ -9,7 +9,7 @@ if (class(x)== "matrix") {
    peak <- round(mean(t.age, na.rm = TRUE), 0)
     } #end matrix class
 
-if (class(x)== "list") {
+if (is.list(x)) {
  n.mats <- length(x)
  peak <-rep(NA, n.mats)
 
