@@ -190,7 +190,7 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
   starter$F_report_basis <- 0
   r4ss::SS_writestarter(starter,
     dir = user.od,
-    overwrite = TRUE, warn = FALSE, verbose = FALSE
+    overwrite = TRUE, verbose = FALSE
   )
 
   #### Forecast
@@ -682,6 +682,6 @@ ICES2SS <- function(user.wd, user.od, ices.id = "",
 
   r4ss::SS_writewtatage(
     mylist = waa.new, dir = user.od,
-    warn = FALSE, verbose = FALSE, overwrite = TRUE
+    verbose = FALSE, overwrite = TRUE
   )
 }
